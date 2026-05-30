@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ interface Product {
   desc: string;
   sizes: string[];
   colors: string[];
-  image: null;
+  image: string | null;
 }
 
 interface CartItem extends Product {
@@ -24,16 +25,28 @@ interface CartItem extends Product {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const PRODUCTS: Product[] = [
-  { id: 1, name: "WORD IS BOND TEE", category: "TOPS", price: 800, tag: "NEW DROP", desc: "Heavyweight 340gsm cotton. Oversized cut. Screen-printed verse on chest.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#1a1a1a","#0d6e5a"], image: null },
-  { id: 2, name: "COVENANT CARGO", category: "BOTTOMS", price: 148, tag: "BESTSELLER", desc: "Waxed cotton utility cargo. Embroidered cross detail at thigh pocket.", sizes: ["S","M","L","XL"], colors: ["#2c2418","#1a1a1a"], image: null },
-  { id: 3, name: "GRACE PERIOD HOODIE", category: "TOPS", price: 128, tag: "LIMITED", desc: "500gsm French terry. Dropped shoulders. Faith script across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#0d6e5a","#1a1a1a"], image: null },
-  { id: 4, name: "EXODUS WINDBREAKER", category: "OUTERWEAR", price: 218, tag: "COLLAB", desc: "Technical ripstop shell. Quilted lining. Zipper pull engraved with cross.", sizes: ["S","M","L","XL"], colors: ["#0d1f1a","#1a1a1a","#f5f0e8"], image: null },
-  { id: 5, name: "NARROW CLUB ACCESSORIES", category: "ACCESSORIES", price: 48, tag: null, desc: "6-panel structured cap. Embroidered arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
+  { id: 1, name: "ADONAI TEE", category: "TOPS", price: 899, tag: "NEW DROP", desc: "Heavyweight 340gsm cotton. Oversized cut. Adonai — my anchor. Hebrews 6:19.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/adonai-tee.png" },
+  { id: 2, name: "COVENANT CARGO", category: "BOTTOMS", price: 1480, tag: "BESTSELLER", desc: "Waxed cotton utility cargo. Embroidered cross detail at thigh pocket.", sizes: ["S","M","L","XL"], colors: ["#2c2418","#1a1a1a"], image: null },
+  { id: 3, name: "GRACE PERIOD HOODIE", category: "TOPS", price: 1280, tag: "LIMITED", desc: "500gsm French terry. Dropped shoulders. Faith script across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#0d6e5a","#1a1a1a"], image: null },
+  { id: 4, name: "EXODUS WINDBREAKER", category: "OUTERWEAR", price: 2180, tag: "COLLAB", desc: "Technical ripstop shell. Quilted lining. Zipper pull engraved with cross.", sizes: ["S","M","L","XL"], colors: ["#0d1f1a","#1a1a1a","#f5f0e8"], image: null },
+  { id: 5, name: "NARROW CLUB CAP", category: "ACCESSORIES", price: 480, tag: null, desc: "6-panel structured cap. Embroidered TNC arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
   { id: 6, name: "PILGRIM SHORTS", category: "BOTTOMS", price: 880, tag: "NEW DROP", desc: "Heavy twill. Relaxed fit. Hidden pocket with lamb's wool lining.", sizes: ["S","M","L","XL","XXL"], colors: ["#2c2418","#f5f0e8"], image: null },
 ];
 
 const CATEGORIES = ["ALL", "TOPS", "BOTTOMS", "OUTERWEAR", "ACCESSORIES"];
 const TEAL = "#0d9e75";
+
+// ─── Logo Component ───────────────────────────────────────────────────────────
+
+const Logo = ({ size = 40 }: { size?: number }) => (
+  <Image
+    src="/images/tnc-logo.png"
+    alt="The Narrow Club"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain", filter: "invert(0)" }}
+  />
+);
 
 // ─── ProductCard ─────────────────────────────────────────────────────────────
 
@@ -49,30 +62,28 @@ const ProductCard = ({ product, onOpen, onWishlist, wishlisted, onAddCart }: Pro
   <div className="group cursor-pointer flex flex-col" style={{ borderTop: "2px solid #1a1a1a" }}>
     <div
       className="relative overflow-hidden flex items-center justify-center"
-      style={{ background: product.id % 2 === 0 ? "#1a1a1a" : "#f5f0e8", aspectRatio: "3/4", minHeight: 260 }}
+      style={{ background: "#1a1a1a", aspectRatio: "3/4", minHeight: 260 }}
       onClick={() => onOpen(product)}
     >
-      <div className="flex flex-col items-center justify-center gap-3 opacity-30">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <rect x="8" y="4" width="48" height="56" rx="2" stroke={product.id % 2 === 0 ? "#f5f0e8" : "#1a1a1a"} strokeWidth="2" />
-          <path d="M8 20 L20 12 L32 22 L44 10 L56 20" stroke={product.id % 2 === 0 ? "#f5f0e8" : "#1a1a1a"} strokeWidth="2" />
-          <circle cx="20" cy="30" r="6" stroke={product.id % 2 === 0 ? "#f5f0e8" : "#1a1a1a"} strokeWidth="2" />
-        </svg>
-        <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 11, letterSpacing: 3, color: product.id % 2 === 0 ? "#f5f0e8" : "#1a1a1a" }}>
-          {product.category}
-        </span>
-      </div>
+      {product.image ? (
+        <Image src={product.image} alt={product.name} fill style={{ objectFit: "cover" }} sizes="(max-width: 768px) 50vw, 25vw" />
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-3 opacity-20">
+          <Image src="/images/tnc-logo.png" alt="TNC" width={60} height={60} style={{ objectFit: "contain", filter: "invert(1)" }} />
+          <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 10, letterSpacing: 3, color: "#f5f0e8" }}>{product.category}</span>
+        </div>
+      )}
 
       {product.tag && (
         <span className="absolute top-3 left-3 text-white text-xs font-bold px-2 py-1"
-          style={{ background: TEAL, fontFamily: "'Anton', sans-serif", letterSpacing: 2, fontSize: 10 }}>
+          style={{ background: TEAL, fontFamily: "'Anton', sans-serif", letterSpacing: 2, fontSize: 10, zIndex: 2 }}>
           {product.tag}
         </span>
       )}
 
       <button
         className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center transition-all"
-        style={{ background: wishlisted ? TEAL : "rgba(255,255,255,0.85)", border: "none" }}
+        style={{ background: wishlisted ? TEAL : "rgba(255,255,255,0.85)", border: "none", zIndex: 2, cursor: "pointer" }}
         onClick={(e) => { e.stopPropagation(); onWishlist(product); }}
         aria-label="Wishlist"
       >
@@ -81,12 +92,10 @@ const ProductCard = ({ product, onOpen, onWishlist, wishlisted, onAddCart }: Pro
         </svg>
       </button>
 
-      <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300" style={{ background: TEAL }}>
-        <button
-          className="w-full text-white py-3 text-sm font-bold tracking-widest"
-          style={{ fontFamily: "'Anton', sans-serif", letterSpacing: 3 }}
-          onClick={(e) => { e.stopPropagation(); onAddCart({ ...product, selectedSize: product.sizes[0] }); }}
-        >
+      <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300" style={{ background: TEAL, zIndex: 2 }}>
+        <button className="w-full text-white py-3 text-sm font-bold"
+          style={{ fontFamily: "'Anton', sans-serif", letterSpacing: 3, border: "none", cursor: "pointer", background: "transparent" }}
+          onClick={(e) => { e.stopPropagation(); onAddCart({ ...product, selectedSize: product.sizes[0] }); }}>
           QUICK ADD
         </button>
       </div>
@@ -95,7 +104,7 @@ const ProductCard = ({ product, onOpen, onWishlist, wishlisted, onAddCart }: Pro
     <div className="pt-3 pb-4 flex flex-col gap-1" onClick={() => onOpen(product)}>
       <div className="flex justify-between items-start">
         <h3 style={{ fontFamily: "'Anton', sans-serif", fontSize: 15, letterSpacing: 1.5, lineHeight: 1.2, color: "#1a1a1a" }}>{product.name}</h3>
-        <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 15, color: TEAL }}>${product.price}</span>
+        <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 15, color: TEAL }}>₹{product.price}</span>
       </div>
       <p style={{ fontSize: 12, color: "#888", letterSpacing: 1 }}>{product.category}</p>
       <div className="flex gap-1 mt-1">
@@ -135,11 +144,19 @@ const CartDrawer = ({ cart, onClose, onRemove, onQty }: CartDrawerProps) => {
           <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
             {cart.map((item) => (
               <div key={`${item.id}_${item.selectedSize}`} className="flex gap-4" style={{ borderBottom: "1px solid #eee", paddingBottom: 16 }}>
-                <div style={{ width: 72, height: 90, background: item.id % 2 === 0 ? "#1a1a1a" : "#f5f0e8", flexShrink: 0 }} />
+                <div style={{ width: 72, height: 90, background: "#1a1a1a", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                  {item.image ? (
+                    <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} sizes="72px" />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.3 }}>
+                      <Image src="/images/tnc-logo.png" alt="TNC" width={36} height={36} style={{ objectFit: "contain", filter: "invert(1)" }} />
+                    </div>
+                  )}
+                </div>
                 <div className="flex-1 flex flex-col gap-1">
                   <div className="flex justify-between">
                     <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 1 }}>{item.name}</span>
-                    <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, color: TEAL }}>${item.price * item.qty}</span>
+                    <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, color: TEAL }}>₹{item.price * item.qty}</span>
                   </div>
                   <span style={{ fontSize: 11, color: "#999", letterSpacing: 1 }}>SIZE: {item.selectedSize}</span>
                   <div className="flex items-center gap-2 mt-1">
@@ -157,11 +174,11 @@ const CartDrawer = ({ cart, onClose, onRemove, onQty }: CartDrawerProps) => {
         <div className="px-6 py-5" style={{ borderTop: "2px solid #1a1a1a" }}>
           <div className="flex justify-between mb-4">
             <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 2 }}>SUBTOTAL</span>
-            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 18, color: TEAL }}>${total}</span>
+            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 18, color: TEAL }}>₹{total}</span>
           </div>
-          <button className="w-full py-4 text-white font-bold tracking-widest"
+          <button className="w-full py-4 text-white font-bold"
             style={{ background: "#1a1a1a", fontFamily: "'Anton', sans-serif", letterSpacing: 4, fontSize: 14, border: `2px solid ${TEAL}`, cursor: "pointer" }}>
-            CHECKOUT — ${total}
+            CHECKOUT — ₹{total}
           </button>
           <p style={{ fontSize: 10, color: "#aaa", textAlign: "center", marginTop: 8, letterSpacing: 1 }}>SHIPPING + TAX CALCULATED AT CHECKOUT</p>
         </div>
@@ -195,11 +212,19 @@ const WishlistDrawer = ({ wishlist, onClose, onRemove, onAddCart }: WishlistDraw
         <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
           {wishlist.map((item) => (
             <div key={item.id} className="flex gap-4" style={{ borderBottom: "1px solid #eee", paddingBottom: 16 }}>
-              <div style={{ width: 72, height: 90, background: item.id % 2 === 0 ? "#1a1a1a" : "#f5f0e8", flexShrink: 0 }} />
+              <div style={{ width: 72, height: 90, background: "#1a1a1a", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                {item.image ? (
+                  <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} sizes="72px" />
+                ) : (
+                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.3 }}>
+                    <Image src="/images/tnc-logo.png" alt="TNC" width={36} height={36} style={{ objectFit: "contain", filter: "invert(1)" }} />
+                  </div>
+                )}
+              </div>
               <div className="flex-1 flex flex-col gap-1">
                 <div className="flex justify-between">
                   <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 1 }}>{item.name}</span>
-                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, color: TEAL }}>${item.price}</span>
+                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, color: TEAL }}>₹{item.price}</span>
                 </div>
                 <span style={{ fontSize: 11, color: "#999", letterSpacing: 1 }}>{item.category}</span>
                 <div className="flex gap-2 mt-2">
@@ -234,23 +259,22 @@ interface ProductModalProps {
 
 const ProductModal = ({ product, onClose, onAddCart, onWishlist, wishlisted }: ProductModalProps) => {
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0]);
-  const [selectedColor, setSelectedColor] = useState<number>(0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" style={{ background: "rgba(0,0,0,0.75)" }} onClick={onClose}>
-      <div
-        className="w-full flex flex-col md:flex-row overflow-hidden"
+      <div className="w-full flex flex-col md:flex-row overflow-hidden"
         style={{ maxWidth: 900, maxHeight: "90vh", background: "#fff", borderTop: `4px solid ${TEAL}` }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-center" style={{ flex: "0 0 45%", background: product.id % 2 === 0 ? "#1a1a1a" : "#f5f0e8", minHeight: 280 }}>
-          <div className="opacity-20 flex flex-col items-center gap-2">
-            <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
-              <rect x="8" y="4" width="48" height="56" rx="2" stroke={product.id % 2 === 0 ? "#fff" : "#1a1a1a"} strokeWidth="2" />
-              <path d="M8 20 L20 12 L32 22 L44 10 L56 20" stroke={product.id % 2 === 0 ? "#fff" : "#1a1a1a"} strokeWidth="2" />
-            </svg>
-            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 10, letterSpacing: 4, color: product.id % 2 === 0 ? "#fff" : "#1a1a1a" }}>PRODUCT IMAGE</span>
-          </div>
+        onClick={(e) => e.stopPropagation()}>
+
+        <div className="relative flex items-center justify-center" style={{ flex: "0 0 45%", background: "#1a1a1a", minHeight: 320 }}>
+          {product.image ? (
+            <Image src={product.image} alt={product.name} fill style={{ objectFit: "cover" }} sizes="45vw" />
+          ) : (
+            <div className="opacity-10 flex flex-col items-center gap-4">
+              <Image src="/images/tnc-logo.png" alt="TNC" width={100} height={100} style={{ objectFit: "contain", filter: "invert(1)" }} />
+              <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 10, letterSpacing: 4, color: "#fff" }}>THE NARROW CLUB</span>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 flex flex-col gap-5">
@@ -264,7 +288,7 @@ const ProductModal = ({ product, onClose, onAddCart, onWishlist, wishlisted }: P
               </span>
             )}
             <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: 30, letterSpacing: 2, lineHeight: 1, color: "#1a1a1a" }}>{product.name}</h2>
-            <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: TEAL, marginTop: 4 }}>${product.price}</p>
+            <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, color: TEAL, marginTop: 4 }}>₹{product.price}</p>
           </div>
 
           <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>{product.desc}</p>
@@ -273,8 +297,7 @@ const ProductModal = ({ product, onClose, onAddCart, onWishlist, wishlisted }: P
             <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 11, letterSpacing: 2, color: "#aaa", marginBottom: 8 }}>COLOR</p>
             <div className="flex gap-2">
               {product.colors.map((c, i) => (
-                <button key={i} onClick={() => setSelectedColor(i)}
-                  style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: selectedColor === i ? `3px solid ${TEAL}` : "2px solid #ddd", cursor: "pointer" }} />
+                <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: "2px solid #ddd" }} />
               ))}
             </div>
           </div>
@@ -292,8 +315,7 @@ const ProductModal = ({ product, onClose, onAddCart, onWishlist, wishlisted }: P
           </div>
 
           <div className="flex gap-3 mt-2">
-            <button
-              onClick={() => { onAddCart({ ...product, selectedSize }); onClose(); }}
+            <button onClick={() => { onAddCart({ ...product, selectedSize }); onClose(); }}
               className="flex-1 py-4 text-white font-bold"
               style={{ background: "#1a1a1a", fontFamily: "'Anton', sans-serif", letterSpacing: 4, fontSize: 13, border: "none", cursor: "pointer" }}>
               ADD TO CART
@@ -307,7 +329,7 @@ const ProductModal = ({ product, onClose, onAddCart, onWishlist, wishlisted }: P
             </button>
           </div>
 
-          <p style={{ fontSize: 11, color: "#aaa", letterSpacing: 1 }}>✦ FREE SHIPPING ON ORDERS OVER $200 &nbsp;&nbsp; ✦ RETURNS WITHIN 30 DAYS</p>
+          <p style={{ fontSize: 11, color: "#aaa", letterSpacing: 1 }}>✦ FREE SHIPPING ON ORDERS OVER ₹1999 &nbsp;&nbsp; ✦ RETURNS WITHIN 30 DAYS</p>
         </div>
       </div>
     </div>
@@ -338,10 +360,7 @@ export default function App() {
 
   const removeFromCart = (id: number, size: string) => setCart((p) => p.filter((i) => !(i.id === id && i.selectedSize === size)));
   const adjustQty = (id: number, size: string, delta: number) => setCart((p) => p.map((i) => i.id === id && i.selectedSize === size ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
-
-  const toggleWishlist = (product: Product) => {
-    setWishlist((prev) => prev.find((i) => i.id === product.id) ? prev.filter((i) => i.id !== product.id) : [...prev, product]);
-  };
+  const toggleWishlist = (product: Product) => setWishlist((prev) => prev.find((i) => i.id === product.id) ? prev.filter((i) => i.id !== product.id) : [...prev, product]);
 
   const filtered = activeCategory === "ALL" ? PRODUCTS : PRODUCTS.filter((p) => p.category === activeCategory);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
@@ -357,9 +376,9 @@ export default function App() {
         .nav-link { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 3px; color: #1a1a1a; text-decoration: none; cursor: pointer; transition: color 0.2s; background: none; border: none; }
         .nav-link:hover { color: ${TEAL}; }
         .ticker-wrap { overflow: hidden; white-space: nowrap; background: ${TEAL}; padding: 8px 0; }
-        .ticker { display: inline-block; animation: ticker 20s linear infinite; }
+        .ticker { display: inline-block; animation: ticker 22s linear infinite; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .hero-title { font-family: 'Anton', sans-serif; font-size: clamp(60px, 14vw, 160px); letter-spacing: -2px; line-height: 0.9; color: #1a1a1a; }
+        .hero-title { font-family: 'Anton', sans-serif; font-size: clamp(54px, 13vw, 150px); letter-spacing: -2px; line-height: 0.9; color: #1a1a1a; }
         .section-title { font-family: 'Anton', sans-serif; font-size: clamp(32px, 6vw, 72px); letter-spacing: 2px; line-height: 1; color: #1a1a1a; }
         .editorial-italic { font-family: 'Playfair Display', serif; font-style: italic; color: ${TEAL}; }
         .mono { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px; color: #888; }
@@ -368,26 +387,33 @@ export default function App() {
       {/* TICKER */}
       <div className="ticker-wrap">
         <span className="ticker" style={{ fontFamily: "'Anton', sans-serif", fontSize: 11, letterSpacing: 4, color: "#fff" }}>
-          {Array(8).fill("✦ NEW SEASON DROP ✦ FREE SHIPPING $200+ ✦ FAITH OVER FEAR ✦ NARROW CLUB SS26 ✦").join("  ")}
+          {Array(8).fill("✦ WALK THE NARROW PATH ✦ FREE SHIPPING ₹1999+ ✦ FAITH OVER FEAR ✦ THE NARROW CLUB SS26 ✦").join("  ")}
         </span>
       </div>
 
       {/* NAV */}
       <nav style={{ borderBottom: "2px solid #1a1a1a", position: "sticky", top: 0, background: "#fff", zIndex: 40 }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 20px" }}>
-          <div className="flex items-center justify-between" style={{ height: 60 }}>
+          <div className="flex items-center justify-between" style={{ height: 64 }}>
+
+            {/* LEFT — Logo + Nav Links */}
             <div className="flex items-center gap-8">
               <button onClick={() => { setPage("home"); setMobileMenu(false); }}
-                style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, letterSpacing: 3, color: "#1a1a1a", background: "none", border: "none", cursor: "pointer" }}>
-                NARROW CLUB
+                style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer" }}>
+                <Logo size={38} />
+                <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 15, letterSpacing: 3, color: "#1a1a1a" }}>THE NARROW CLUB</span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, letterSpacing: 3, color: "#888" }}>WALK THE NARROW PATH</span>
+                </div>
               </button>
               <div className="hidden md:flex gap-6">
                 <button className="nav-link" onClick={() => setPage("home")}>HOME</button>
                 <button className="nav-link" onClick={() => setPage("shop")}>SHOP</button>
-                <button className="nav-link" style={{ color: TEAL }}>SS25</button>
+                <button className="nav-link" style={{ color: TEAL }}>SS26</button>
               </div>
             </div>
 
+            {/* RIGHT — Icons */}
             <div className="flex items-center gap-4">
               <button className="nav-link hidden md:block" onClick={() => setPage("shop")}>SEARCH</button>
 
@@ -424,7 +450,7 @@ export default function App() {
           <div style={{ borderTop: "1px solid #eee", padding: "20px", display: "flex", flexDirection: "column", gap: 16, background: "#fff" }}>
             <button className="nav-link" style={{ textAlign: "left" }} onClick={() => { setPage("home"); setMobileMenu(false); }}>HOME</button>
             <button className="nav-link" style={{ textAlign: "left" }} onClick={() => { setPage("shop"); setMobileMenu(false); }}>SHOP</button>
-            <button className="nav-link" style={{ textAlign: "left", color: TEAL }}>SS25 COLLECTION</button>
+            <button className="nav-link" style={{ textAlign: "left", color: TEAL }}>SS26 COLLECTION</button>
           </div>
         )}
       </nav>
@@ -432,14 +458,14 @@ export default function App() {
       {/* HOME PAGE */}
       {page === "home" && (
         <main>
+          {/* HERO */}
           <section style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 20px 40px" }}>
             <div className="flex flex-col gap-6">
-              <p className="mono">✦ SPRING / SUMMER 2025</p>
+              <p className="mono">✦ SPRING / SUMMER 2026</p>
               <div>
-                <h1 className="hero-title">DRESSED</h1>
-                <h1 className="hero-title" style={{ color: TEAL }}>IN GRACE,</h1>
-                <h1 className="hero-title">BUILT FOR</h1>
-                <h1 className="hero-title">THE STREETS.</h1>
+                <h1 className="hero-title">WALK</h1>
+                <h1 className="hero-title" style={{ color: TEAL }}>THE NARROW</h1>
+                <h1 className="hero-title">PATH.</h1>
               </div>
               <div className="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between mt-4">
                 <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "clamp(16px, 2.5vw, 22px)", color: "#555", maxWidth: 420, lineHeight: 1.6 }}>
@@ -452,27 +478,29 @@ export default function App() {
                   </button>
                   <button onClick={() => setPage("shop")} className="px-8 py-4 font-bold"
                     style={{ border: "2px solid #1a1a1a", fontFamily: "'Anton', sans-serif", letterSpacing: 4, fontSize: 13, background: "none", cursor: "pointer" }}>
-                    SS25 LOOKBOOK
+                    SS26 LOOKBOOK
                   </button>
                 </div>
               </div>
             </div>
           </section>
 
-          <section style={{ background: "#1a1a1a", margin: "0 0 80px", padding: "0 20px" }}>
-            <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-              <div className="grid grid-cols-3 gap-0" style={{ borderTop: `4px solid ${TEAL}` }}>
+          {/* HERO VISUAL BANNER */}
+          <section style={{ background: "#1a1a1a", margin: "0 0 80px" }}>
+            <div style={{ maxWidth: 1280, margin: "0 auto", borderTop: `4px solid ${TEAL}` }}>
+              <div className="grid grid-cols-3">
                 {(["FAITH", "DROPS", "NOW"] as const).map((word, i) => (
                   <div key={word} className="flex flex-col items-center justify-center"
-                    style={{ height: "clamp(140px, 30vw, 320px)", borderRight: i < 2 ? "1px solid #333" : "none" }}>
+                    style={{ height: "clamp(140px, 28vw, 300px)", borderRight: i < 2 ? "1px solid #333" : "none" }}>
                     <span style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(28px, 7vw, 96px)", color: i === 1 ? TEAL : "#fff", letterSpacing: 2 }}>{word}</span>
-                    {i === 1 && <span className="mono" style={{ color: "#888", marginTop: 8 }}>SEASON 25</span>}
+                    {i === 1 && <span className="mono" style={{ color: "#888", marginTop: 8 }}>SS26</span>}
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
+          {/* FEATURED */}
           <section style={{ maxWidth: 1280, margin: "0 auto 80px", padding: "0 20px" }}>
             <div className="flex items-end justify-between mb-10">
               <div>
@@ -488,22 +516,27 @@ export default function App() {
             </div>
           </section>
 
+          {/* ETHOS BANNER */}
           <section style={{ background: TEAL, padding: "60px 20px", marginBottom: 80 }}>
             <div style={{ maxWidth: 1280, margin: "0 auto" }}>
               <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div>
-                  <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 4, color: "rgba(255,255,255,0.7)", marginBottom: 12 }}>✦ OUR ETHOS</p>
-                  <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(36px, 6vw, 72px)", color: "#fff", letterSpacing: 2, lineHeight: 1 }}>
-                    NOT RELIGIOUS.<br />JUST ROOTED.
-                  </h2>
+                <div className="flex items-center gap-6">
+                  <Image src="/images/tnc-logo.png" alt="TNC" width={80} height={80} style={{ objectFit: "contain", filter: "invert(1)", opacity: 0.9 }} />
+                  <div>
+                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 4, color: "rgba(255,255,255,0.7)", marginBottom: 8 }}>✦ OUR ETHOS</p>
+                    <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(28px, 5vw, 64px)", color: "#fff", letterSpacing: 2, lineHeight: 1 }}>
+                      NOT RELIGIOUS.<br />JUST ROOTED.
+                    </h2>
+                  </div>
                 </div>
-                <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "clamp(16px, 2vw, 22px)", color: "rgba(255,255,255,0.85)", maxWidth: 400, lineHeight: 1.7 }}>
-                  Every piece tells a story. Every stitch a statement.
+                <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "clamp(15px, 1.8vw, 20px)", color: "rgba(255,255,255,0.9)", maxWidth: 380, lineHeight: 1.8 }}>
+                  "Enter through the narrow gate." — Matthew 7:13. Every piece tells a story. Every stitch a statement.
                 </p>
               </div>
             </div>
           </section>
 
+          {/* CATEGORIES */}
           <section style={{ maxWidth: 1280, margin: "0 auto 80px", padding: "0 20px" }}>
             <p className="mono mb-8" style={{ textAlign: "center" }}>✦ BROWSE BY CATEGORY</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -512,23 +545,26 @@ export default function App() {
                   className="flex flex-col items-center justify-end"
                   style={{ height: "clamp(140px, 20vw, 220px)", background: i % 2 === 0 ? "#1a1a1a" : "#f5f0e8", border: "none", cursor: "pointer", padding: 20, transition: "transform 0.2s" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
-                >
-                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(16px, 3vw, 24px)", color: i % 2 === 0 ? "#fff" : "#1a1a1a", letterSpacing: 3 }}>{cat}</span>
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}>
+                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(14px, 2.5vw, 22px)", color: i % 2 === 0 ? "#fff" : "#1a1a1a", letterSpacing: 3 }}>{cat}</span>
                   <div style={{ width: 24, height: 2, background: TEAL, marginTop: 8 }} />
                 </button>
               ))}
             </div>
           </section>
 
+          {/* FOOTER */}
           <footer style={{ background: "#1a1a1a", padding: "48px 20px 24px" }}>
             <div style={{ maxWidth: 1280, margin: "0 auto" }}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-                <div>
-                  <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 24, letterSpacing: 3, color: "#fff", marginBottom: 8 }}>NARROW CLUB</p>
-                  <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 13, color: "#888", lineHeight: 1.6 }}>Faith-rooted. Street-raised.</p>
+                <div className="flex flex-col gap-3">
+                  <Image src="/images/tnc-logo.png" alt="The Narrow Club" width={48} height={48} style={{ objectFit: "contain", filter: "invert(1)" }} />
+                  <div>
+                    <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 16, letterSpacing: 3, color: "#fff" }}>THE NARROW CLUB</p>
+                    <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 12, color: "#888", lineHeight: 1.6, marginTop: 4 }}>Faith-rooted. Street-raised.</p>
+                  </div>
                 </div>
-                {([["SHOP", ["All Products", "New Arrivals", "SS25 Collection", "Sale"]], ["INFO", ["About Us", "Sustainability", "Size Guide", "Contact"]], ["LEGAL", ["Privacy Policy", "Terms", "Returns", "Shipping"]]] as [string, string[]][]).map(([title, links]) => (
+                {([["SHOP", ["All Products", "New Arrivals", "SS26 Collection", "Sale"]], ["INFO", ["About Us", "Sustainability", "Size Guide", "Contact"]], ["LEGAL", ["Privacy Policy", "Terms", "Returns", "Shipping"]]] as [string, string[]][]).map(([title, links]) => (
                   <div key={title}>
                     <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 11, letterSpacing: 3, color: TEAL, marginBottom: 12 }}>{title}</p>
                     {links.map((l) => <p key={l} style={{ fontSize: 12, color: "#888", marginBottom: 6, cursor: "pointer" }}>{l}</p>)}
@@ -536,8 +572,8 @@ export default function App() {
                 ))}
               </div>
               <div style={{ borderTop: "1px solid #333", paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                <p className="mono" style={{ color: "#555" }}>© 2026 NARROW. ALL RIGHTS RESERVED.</p>
-                <p className="mono" style={{ color: TEAL }}>FAITH OVER FEAR ✦</p>
+                <p className="mono" style={{ color: "#555" }}>© 2026 THE NARROW CLUB. ALL RIGHTS RESERVED.</p>
+                <p className="mono" style={{ color: TEAL }}>WALK THE NARROW PATH ✦</p>
               </div>
             </div>
           </footer>
@@ -548,7 +584,7 @@ export default function App() {
       {page === "shop" && (
         <main style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px 80px" }}>
           <div className="mb-10">
-            <p className="mono mb-3">✦ SPRING / SUMMER 2025</p>
+            <p className="mono mb-3">✦ SPRING / SUMMER 2026</p>
             <h1 style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(40px, 8vw, 96px)", letterSpacing: 2, lineHeight: 0.9 }}>
               SHOP<br /><span style={{ color: TEAL }}>ALL.</span>
             </h1>
