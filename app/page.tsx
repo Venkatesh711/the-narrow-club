@@ -28,7 +28,7 @@ const PRODUCTS: Product[] = [
   { id: 2, name: "COVENANT CARGO", category: "BOTTOMS", price: 148, tag: "BESTSELLER", desc: "Waxed cotton utility cargo. Embroidered cross detail at thigh pocket.", sizes: ["S","M","L","XL"], colors: ["#2c2418","#1a1a1a"], image: null },
   { id: 3, name: "GRACE PERIOD HOODIE", category: "TOPS", price: 128, tag: "LIMITED", desc: "500gsm French terry. Dropped shoulders. Faith script across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#0d6e5a","#1a1a1a"], image: null },
   { id: 4, name: "EXODUS WINDBREAKER", category: "OUTERWEAR", price: 218, tag: "COLLAB", desc: "Technical ripstop shell. Quilted lining. Zipper pull engraved with cross.", sizes: ["S","M","L","XL"], colors: ["#0d1f1a","#1a1a1a","#f5f0e8"], image: null },
-  { id: 5, name: "NARROW ACCESSORIES", category: "ACCESSORIES", price: 48, tag: null, desc: "6-panel structured cap. Embroidered arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
+  { id: 5, name: "NARROW CLUB ACCESSORIES", category: "ACCESSORIES", price: 48, tag: null, desc: "6-panel structured cap. Embroidered arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
   { id: 6, name: "PILGRIM SHORTS", category: "BOTTOMS", price: 880, tag: "NEW DROP", desc: "Heavy twill. Relaxed fit. Hidden pocket with lamb's wool lining.", sizes: ["S","M","L","XL","XXL"], colors: ["#2c2418","#f5f0e8"], image: null },
 ];
 
@@ -368,7 +368,7 @@ export default function App() {
       {/* TICKER */}
       <div className="ticker-wrap">
         <span className="ticker" style={{ fontFamily: "'Anton', sans-serif", fontSize: 11, letterSpacing: 4, color: "#fff" }}>
-          {Array(8).fill("✦ NEW SEASON DROP ✦ FREE SHIPPING $200+ ✦ FAITH OVER FEAR ✦ NARROW SS25 ✦").join("  ")}
+          {Array(8).fill("✦ NEW SEASON DROP ✦ FREE SHIPPING $200+ ✦ FAITH OVER FEAR ✦ NARROW CLUB SS26 ✦").join("  ")}
         </span>
       </div>
 
@@ -379,7 +379,7 @@ export default function App() {
             <div className="flex items-center gap-8">
               <button onClick={() => { setPage("home"); setMobileMenu(false); }}
                 style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, letterSpacing: 3, color: "#1a1a1a", background: "none", border: "none", cursor: "pointer" }}>
-                NARROW
+                NARROW CLUB
               </button>
               <div className="hidden md:flex gap-6">
                 <button className="nav-link" onClick={() => setPage("home")}>HOME</button>
@@ -525,7 +525,7 @@ export default function App() {
             <div style={{ maxWidth: 1280, margin: "0 auto" }}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                 <div>
-                  <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 24, letterSpacing: 3, color: "#fff", marginBottom: 8 }}>NARROW</p>
+                  <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 24, letterSpacing: 3, color: "#fff", marginBottom: 8 }}>NARROW CLUB</p>
                   <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 13, color: "#888", lineHeight: 1.6 }}>Faith-rooted. Street-raised.</p>
                 </div>
                 {([["SHOP", ["All Products", "New Arrivals", "SS25 Collection", "Sale"]], ["INFO", ["About Us", "Sustainability", "Size Guide", "Contact"]], ["LEGAL", ["Privacy Policy", "Terms", "Returns", "Shipping"]]] as [string, string[]][]).map(([title, links]) => (
