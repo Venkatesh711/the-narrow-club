@@ -26,18 +26,13 @@ interface CartItem extends Product {
 
 const PRODUCTS: Product[] = [
   { id: 1, name: "ADONAI MY ANCHOR TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Hebrews 6:19 with anchor, katana and cherry blossom artwork.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/adonai-my-anchor-tee.jpg" },
-  { id: 2, name: "COVENANT CARGO", category: "BOTTOMS", price: 1480, tag: "BESTSELLER", desc: "Waxed cotton utility cargo. Embroidered cross detail at thigh pocket.", sizes: ["S","M","L","XL"], colors: ["#2c2418","#1a1a1a"], image: null },
-  { id: 3, name: "GRACE PERIOD HOODIE", category: "TOPS", price: 1280, tag: "LIMITED", desc: "500gsm French terry. Dropped shoulders. Faith script across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#0d6e5a","#1a1a1a"], image: null },
-  { id: 4, name: "EXODUS WINDBREAKER", category: "OUTERWEAR", price: 2180, tag: "COLLAB", desc: "Technical ripstop shell. Quilted lining. Zipper pull engraved with cross.", sizes: ["S","M","L","XL"], colors: ["#0d1f1a","#1a1a1a","#f5f0e8"], image: null },
-  { id: 5, name: "NARROW CLUB CAP", category: "ACCESSORIES", price: 480, tag: null, desc: "6-panel structured cap. Embroidered TNC arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
-  { id: 6, name: "PILGRIM SHORTS", category: "BOTTOMS", price: 880, tag: "NEW DROP", desc: "Heavy twill. Relaxed fit. Hidden pocket with lamb's wool lining.", sizes: ["S","M","L","XL","XXL"], colors: ["#2c2418","#f5f0e8"], image: null },
-  { id: 7, name: "YAHWEH TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Bold YAHWEH lettering with doves and florals across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/yahweh-tee.jpg" },
-  { id: 8, name: "CHRIST LIVES IN ME TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Galatians 2:20 with an anatomical heart graphic on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/christ-lives-in-me-tee.jpg" },
-  { id: 9, name: "FAITH HOPE & LOVE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. 1 Corinthians 13:13 typography on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#ffffff"], image: "/images/faith-hope-love-tee.jpg" },
-  { id: 10, name: "FAITH & GRACE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Romans 5:1-2 with a striped sofa illustration on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/faith-and-grace-tee.jpg" },
+  { id: 2, name: "YAHWEH TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Bold YAHWEH lettering with doves and florals across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/yahweh-tee.jpg" },
+  { id: 3, name: "CHRIST LIVES IN ME TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Galatians 2:20 with an anatomical heart graphic on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/christ-lives-in-me-tee.jpg" },
+  { id: 4, name: "FAITH HOPE & LOVE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. 1 Corinthians 13:13 typography on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#ffffff"], image: "/images/faith-hope-love-tee.jpg" },
+  { id: 5, name: "FAITH & GRACE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Romans 5:1-2 with a striped sofa illustration on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/faith-and-grace-tee.jpg" },
 ];
 
-const CATEGORIES = ["ALL", "TOPS", "BOTTOMS", "OUTERWEAR", "ACCESSORIES"];
+const CATEGORIES = ["ALL", "TOPS"];
 const TEAL = "#0d9e75";
 
 // ─── Logo Component ───────────────────────────────────────────────────────────
@@ -513,9 +508,11 @@ export default function App() {
               </div>
               <button onClick={() => setPage("shop")} className="nav-link" style={{ borderBottom: `2px solid ${TEAL}`, paddingBottom: 2 }}>VIEW ALL →</button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-              {PRODUCTS.slice(0, 4).map((p) => (
-                <ProductCard key={p.id} product={p} onOpen={setSelectedProduct} onWishlist={toggleWishlist} wishlisted={wishlist.some((w) => w.id === p.id)} onAddCart={addToCart} />
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+              {PRODUCTS.map((p) => (
+                <div key={p.id} className="w-[calc(50%-12px)] md:w-[calc(33.333%-21.4px)] lg:w-[calc(20%-25.7px)]">
+                  <ProductCard product={p} onOpen={setSelectedProduct} onWishlist={toggleWishlist} wishlisted={wishlist.some((w) => w.id === p.id)} onAddCart={addToCart} />
+                </div>
               ))}
             </div>
           </section>
@@ -540,23 +537,6 @@ export default function App() {
             </div>
           </section>
 
-          {/* CATEGORIES */}
-          <section style={{ maxWidth: 1280, margin: "0 auto 80px", padding: "0 20px" }}>
-            <p className="mono mb-8" style={{ textAlign: "center" }}>✦ BROWSE BY CATEGORY</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {(["TOPS", "BOTTOMS", "OUTERWEAR", "ACCESSORIES"] as const).map((cat, i) => (
-                <button key={cat} onClick={() => { setActiveCategory(cat); setPage("shop"); }}
-                  className="flex flex-col items-center justify-end"
-                  style={{ height: "clamp(140px, 20vw, 220px)", background: i % 2 === 0 ? "#1a1a1a" : "#f5f0e8", border: "none", cursor: "pointer", padding: 20, transition: "transform 0.2s" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}>
-                  <span style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(14px, 2.5vw, 22px)", color: i % 2 === 0 ? "#fff" : "#1a1a1a", letterSpacing: 3 }}>{cat}</span>
-                  <div style={{ width: 24, height: 2, background: TEAL, marginTop: 8 }} />
-                </button>
-              ))}
-            </div>
-          </section>
-
           {/* FOOTER */}
           <footer style={{ background: "#1a1a1a", padding: "48px 20px 24px" }}>
             <div style={{ maxWidth: 1280, margin: "0 auto" }}>
@@ -567,6 +547,9 @@ export default function App() {
                     <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 16, letterSpacing: 3, color: "#fff" }}>THE NARROW CLUB</p>
                     <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 12, color: "#888", lineHeight: 1.6, marginTop: 4 }}>Faith-rooted. Street-raised.</p>
                   </div>
+                  <a href="https://wa.me/918123303233?text=Hi%20The%20Narrow%20Club%2C%20I%20would%20like%20to%20know%20more%20about%20your%20tees." target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 12, fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 1, color: "#25D366", textDecoration: "none" }}>
+                    CONTACT US ON WHATSAPP<br />+91 81233 03233
+                  </a>
                 </div>
                 {([["SHOP", ["All Products", "New Arrivals", "SS26 Collection", "Sale"]], ["INFO", ["About Us", "Sustainability", "Size Guide", "Contact"]], ["LEGAL", ["Privacy Policy", "Terms", "Returns", "Shipping"]]] as [string, string[]][]).map(([title, links]) => (
                   <div key={title}>
@@ -606,9 +589,11 @@ export default function App() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
             {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} onOpen={setSelectedProduct} onWishlist={toggleWishlist} wishlisted={wishlist.some((w) => w.id === p.id)} onAddCart={addToCart} />
+              <div key={p.id} className="w-[calc(50%-12px)] md:w-[calc(33.333%-21.4px)] lg:w-[calc(20%-25.7px)]">
+                <ProductCard product={p} onOpen={setSelectedProduct} onWishlist={toggleWishlist} wishlisted={wishlist.some((w) => w.id === p.id)} onAddCart={addToCart} />
+              </div>
             ))}
           </div>
         </main>
@@ -619,6 +604,13 @@ export default function App() {
       )}
       {cartOpen && <CartDrawer cart={cart} onClose={() => setCartOpen(false)} onRemove={removeFromCart} onQty={adjustQty} />}
       {wishlistOpen && <WishlistDrawer wishlist={wishlist} onClose={() => setWishlistOpen(false)} onRemove={(id) => setWishlist((p) => p.filter((i) => i.id !== id))} onAddCart={addToCart} />}
+
+      {/* WHATSAPP CONTACT */}
+      <a href="https://wa.me/918123303233?text=Hi%20The%20Narrow%20Club%2C%20I%20would%20like%20to%20know%20more%20about%20your%20tees." target="_blank" rel="noopener noreferrer" aria-label="Contact us on WhatsApp"
+        style={{ position: "fixed", right: 16, bottom: 16, zIndex: 40, display: "flex", alignItems: "center", gap: 8, background: "#25D366", color: "#fff", padding: "12px 18px", borderRadius: 999, boxShadow: "0 4px 14px rgba(0,0,0,0.25)", textDecoration: "none", fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 2 }}>
+        <span aria-hidden="true" style={{ fontSize: 18 }}>💬</span>
+        CONTACT US
+      </a>
     </>
   );
 }
