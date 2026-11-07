@@ -84,6 +84,8 @@ export async function POST(request: Request) {
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
+      // The Key ID is public by design (the secret is never sent to the browser).
+      key_id: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err: unknown) {
     const e = err as { statusCode?: number; error?: { description?: string } };

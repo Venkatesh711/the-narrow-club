@@ -171,9 +171,10 @@ const CartDrawer = ({ cart, onClose, onRemove, onQty, onPaid }: CartDrawerProps)
       });
       const order = await res.json();
       if (!res.ok) throw new Error(order.error || "Could not start the payment.");
+      if (!order.key_id && !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) throw new Error("Payment key is missing. Please contact us on WhatsApp.");
 
       const rzp = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: order.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         order_id: order.order_id,
