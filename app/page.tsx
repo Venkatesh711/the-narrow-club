@@ -25,12 +25,16 @@ interface CartItem extends Product {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const PRODUCTS: Product[] = [
-  { id: 1, name: "ADONAI TEE", category: "TOPS", price: 899, tag: "NEW DROP", desc: "Heavyweight 340gsm cotton. Oversized cut. Adonai — my anchor. Hebrews 6:19.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/adonai-tee.png" },
+  { id: 1, name: "ADONAI MY ANCHOR TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Hebrews 6:19 with anchor, katana and cherry blossom artwork.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/adonai-my-anchor-tee.jpg" },
   { id: 2, name: "COVENANT CARGO", category: "BOTTOMS", price: 1480, tag: "BESTSELLER", desc: "Waxed cotton utility cargo. Embroidered cross detail at thigh pocket.", sizes: ["S","M","L","XL"], colors: ["#2c2418","#1a1a1a"], image: null },
   { id: 3, name: "GRACE PERIOD HOODIE", category: "TOPS", price: 1280, tag: "LIMITED", desc: "500gsm French terry. Dropped shoulders. Faith script across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8","#0d6e5a","#1a1a1a"], image: null },
   { id: 4, name: "EXODUS WINDBREAKER", category: "OUTERWEAR", price: 2180, tag: "COLLAB", desc: "Technical ripstop shell. Quilted lining. Zipper pull engraved with cross.", sizes: ["S","M","L","XL"], colors: ["#0d1f1a","#1a1a1a","#f5f0e8"], image: null },
   { id: 5, name: "NARROW CLUB CAP", category: "ACCESSORIES", price: 480, tag: null, desc: "6-panel structured cap. Embroidered TNC arch logo. Adjustable strap.", sizes: ["ONE SIZE"], colors: ["#1a1a1a","#f5f0e8","#0d6e5a"], image: null },
   { id: 6, name: "PILGRIM SHORTS", category: "BOTTOMS", price: 880, tag: "NEW DROP", desc: "Heavy twill. Relaxed fit. Hidden pocket with lamb's wool lining.", sizes: ["S","M","L","XL","XXL"], colors: ["#2c2418","#f5f0e8"], image: null },
+  { id: 7, name: "YAHWEH TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Bold YAHWEH lettering with doves and florals across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/yahweh-tee.jpg" },
+  { id: 8, name: "CHRIST LIVES IN ME TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Galatians 2:20 with an anatomical heart graphic on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/christ-lives-in-me-tee.jpg" },
+  { id: 9, name: "FAITH HOPE & LOVE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. 1 Corinthians 13:13 typography on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#ffffff"], image: "/images/faith-hope-love-tee.jpg" },
+  { id: 10, name: "FAITH & GRACE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Romans 5:1-2 with a striped sofa illustration on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/faith-and-grace-tee.jpg" },
 ];
 
 const CATEGORIES = ["ALL", "TOPS", "BOTTOMS", "OUTERWEAR", "ACCESSORIES"];
