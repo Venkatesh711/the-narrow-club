@@ -2,35 +2,46 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { PRODUCTS, FREE_SHIPPING_ABOVE, SHIPPING_FEE, type Product } from "../lib/products";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  tag: string | null;
-  desc: string;
-  sizes: string[];
-  colors: string[];
-  image: string | null;
-}
 
 interface CartItem extends Product {
   qty: number;
   selectedSize: string;
 }
 
+interface RazorpaySuccess {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, cb: (resp: { error?: { description?: string } }) => void) => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+  }
+}
+
+const loadRazorpay = () =>
+  new Promise<boolean>((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const PRODUCTS: Product[] = [
-  { id: 1, name: "ADONAI MY ANCHOR TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Hebrews 6:19 with anchor, katana and cherry blossom artwork.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/adonai-my-anchor-tee.jpg" },
-  { id: 2, name: "YAHWEH TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Bold YAHWEH lettering with doves and florals across the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a"], image: "/images/yahweh-tee.jpg" },
-  { id: 3, name: "CHRIST LIVES IN ME TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Galatians 2:20 with an anatomical heart graphic on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/christ-lives-in-me-tee.jpg" },
-  { id: 4, name: "FAITH HOPE & LOVE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. 1 Corinthians 13:13 typography on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#ffffff"], image: "/images/faith-hope-love-tee.jpg" },
-  { id: 5, name: "FAITH & GRACE TEE", category: "TOPS", price: 999, tag: "NEW DROP", desc: "Oversized cut. Romans 5:1-2 with a striped sofa illustration on the back.", sizes: ["XS","S","M","L","XL","XXL"], colors: ["#f5f0e8"], image: "/images/faith-and-grace-tee.jpg" },
-];
 
 const CATEGORIES = ["ALL", "TOPS"];
 const TEAL = "#0d9e75";
@@ -122,10 +133,90 @@ interface CartDrawerProps {
   onClose: () => void;
   onRemove: (id: number, size: string) => void;
   onQty: (id: number, size: string, delta: number) => void;
+  onPaid: () => void;
 }
 
-const CartDrawer = ({ cart, onClose, onRemove, onQty }: CartDrawerProps) => {
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+const CartDrawer = ({ cart, onClose, onRemove, onQty, onPaid }: CartDrawerProps) => {
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_FEE;
+  const total = subtotal + shipping;
+
+  const [form, setForm] = useState({ name: "", phone: "", email: "", address: "" });
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
+  const [paidId, setPaidId] = useState("");
+
+  const setField = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleCheckout = async () => {
+    setError("");
+    if (form.name.trim().length < 2) return setError("Please enter your full name.");
+    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, "").slice(-10))) return setError("Please enter a valid 10-digit phone number.");
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return setError("Please enter a valid email address.");
+    if (form.address.trim().length < 10) return setError("Please enter your full shipping address.");
+
+    setPaying(true);
+    try {
+      const ok = await loadRazorpay();
+      if (!ok || !window.Razorpay) throw new Error("Could not load the payment window. Check your internet and try again.");
+
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map((i) => ({ id: i.id, qty: i.qty, size: i.selectedSize })),
+          customer: form,
+        }),
+      });
+      const order = await res.json();
+      if (!res.ok) throw new Error(order.error || "Could not start the payment.");
+
+      const rzp = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.order_id,
+        name: "The Narrow Club",
+        description: "Order payment",
+        prefill: { name: form.name.trim(), email: form.email.trim(), contact: form.phone.trim() },
+        theme: { color: TEAL },
+        handler: async (resp: RazorpaySuccess) => {
+          try {
+            const v = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(resp),
+            });
+            const data = await v.json();
+            if (!v.ok || !data.success) throw new Error(data.error || "Payment verification failed.");
+            setPaidId(resp.razorpay_payment_id);
+            onPaid();
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "Payment verification failed. Please contact us on WhatsApp.");
+          } finally {
+            setPaying(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaying(false);
+            setError("Payment cancelled. You have not been charged.");
+          },
+        },
+      });
+      rzp.on("payment.failed", (r) => {
+        setPaying(false);
+        setError(r.error?.description || "Payment failed. Please try again.");
+      });
+      rzp.open();
+    } catch (err) {
+      setPaying(false);
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
+  };
+
+  const inputStyle: React.CSSProperties = { width: "100%", border: "1px solid #ddd", padding: "8px 10px", fontSize: 13, marginBottom: 8, outline: "none" };
   return (
     <div className="fixed inset-0 z-50 flex justify-end" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose}>
       <div className="h-full flex flex-col" style={{ width: "min(420px, 100vw)", background: "#fff", borderLeft: `4px solid ${TEAL}` }} onClick={(e) => e.stopPropagation()}>
@@ -134,7 +225,13 @@ const CartDrawer = ({ cart, onClose, onRemove, onQty }: CartDrawerProps) => {
           <button onClick={onClose} style={{ fontFamily: "'Anton', sans-serif", fontSize: 12, letterSpacing: 2, color: TEAL, background: "none", border: "none", cursor: "pointer" }}>CLOSE ✕</button>
         </div>
 
-        {cart.length === 0 ? (
+        {paidId ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
+            <div style={{ fontFamily: "'Anton', sans-serif", fontSize: 40, color: TEAL }}>PAYMENT SUCCESSFUL</div>
+            <p style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>Thank you for your order! We will contact you on WhatsApp to confirm shipping.</p>
+            <p style={{ fontSize: 11, color: "#999", letterSpacing: 1 }}>PAYMENT ID: {paidId}</p>
+          </div>
+        ) : cart.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4">
             <div style={{ fontFamily: "'Anton', sans-serif", fontSize: 48, color: "#eee" }}>∅</div>
             <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 3, color: "#aaa" }}>CART IS EMPTY</p>
@@ -170,17 +267,34 @@ const CartDrawer = ({ cart, onClose, onRemove, onQty }: CartDrawerProps) => {
           </div>
         )}
 
-        <div className="px-6 py-5" style={{ borderTop: "2px solid #1a1a1a" }}>
-          <div className="flex justify-between mb-4">
-            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 2 }}>SUBTOTAL</span>
-            <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 18, color: TEAL }}>₹{total}</span>
+        {!paidId && cart.length > 0 && (
+          <div className="px-6 py-5" style={{ borderTop: "2px solid #1a1a1a", maxHeight: "60vh", overflowY: "auto" }}>
+            <p style={{ fontFamily: "'Anton', sans-serif", fontSize: 12, letterSpacing: 2, marginBottom: 8 }}>DELIVERY DETAILS</p>
+            <input placeholder="Full name" value={form.name} onChange={setField("name")} style={inputStyle} />
+            <input placeholder="Phone (10 digits)" inputMode="tel" value={form.phone} onChange={setField("phone")} style={inputStyle} />
+            <input placeholder="Email" type="email" value={form.email} onChange={setField("email")} style={inputStyle} />
+            <textarea placeholder="Full shipping address with pincode" rows={3} value={form.address} onChange={setField("address")} style={{ ...inputStyle, resize: "none" }} />
+
+            <div className="flex justify-between mb-1 mt-2">
+              <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 12, letterSpacing: 2 }}>SUBTOTAL</span>
+              <span style={{ fontSize: 13 }}>₹{subtotal}</span>
+            </div>
+            <div className="flex justify-between mb-3">
+              <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 12, letterSpacing: 2 }}>SHIPPING</span>
+              <span style={{ fontSize: 13 }}>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
+            </div>
+            <div className="flex justify-between mb-4">
+              <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 13, letterSpacing: 2 }}>TOTAL</span>
+              <span style={{ fontFamily: "'Anton', sans-serif", fontSize: 18, color: TEAL }}>₹{total}</span>
+            </div>
+            {error && <p role="alert" style={{ color: "#c0392b", fontSize: 12, marginBottom: 10 }}>{error}</p>}
+            <button onClick={handleCheckout} disabled={paying} className="w-full py-4 text-white font-bold"
+              style={{ background: "#1a1a1a", fontFamily: "'Anton', sans-serif", letterSpacing: 4, fontSize: 14, border: `2px solid ${TEAL}`, cursor: paying ? "not-allowed" : "pointer", opacity: paying ? 0.6 : 1 }}>
+              {paying ? "PLEASE WAIT..." : `PAY ₹${total}`}
+            </button>
+            <p style={{ fontSize: 10, color: "#aaa", textAlign: "center", marginTop: 8, letterSpacing: 1 }}>SECURE PAYMENT BY RAZORPAY · UPI, CARDS, NET BANKING</p>
           </div>
-          <button className="w-full py-4 text-white font-bold"
-            style={{ background: "#1a1a1a", fontFamily: "'Anton', sans-serif", letterSpacing: 4, fontSize: 14, border: `2px solid ${TEAL}`, cursor: "pointer" }}>
-            CHECKOUT — ₹{total}
-          </button>
-          <p style={{ fontSize: 10, color: "#aaa", textAlign: "center", marginTop: 8, letterSpacing: 1 }}>SHIPPING + TAX CALCULATED AT CHECKOUT</p>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -602,7 +716,7 @@ export default function App() {
       {selectedProduct && (
         <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAddCart={addToCart} onWishlist={toggleWishlist} wishlisted={wishlist.some((w) => w.id === selectedProduct.id)} />
       )}
-      {cartOpen && <CartDrawer cart={cart} onClose={() => setCartOpen(false)} onRemove={removeFromCart} onQty={adjustQty} />}
+      {cartOpen && <CartDrawer cart={cart} onClose={() => setCartOpen(false)} onRemove={removeFromCart} onQty={adjustQty} onPaid={() => setCart([])} />}
       {wishlistOpen && <WishlistDrawer wishlist={wishlist} onClose={() => setWishlistOpen(false)} onRemove={(id) => setWishlist((p) => p.filter((i) => i.id !== id))} onAddCart={addToCart} />}
 
       {/* WHATSAPP CONTACT */}
